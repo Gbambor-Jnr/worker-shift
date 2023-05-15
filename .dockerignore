@@ -1,0 +1,4 @@
+
+#dist makes sure incase the dist is present after building itis  ignored
+dist 
+node_modules
