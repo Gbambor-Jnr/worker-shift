@@ -9,6 +9,12 @@ interface WorkerDoc extends Model {
   firstName: string;
   lastName: string;
   salt: string;
+  role: string;
+}
+
+export enum RoleEnum {
+  ADMIN = "admin",
+  WORKER = "worker",
 }
 
 export const Workers = sequelize.define<WorkerDoc>("workers", {
@@ -34,6 +40,10 @@ export const Workers = sequelize.define<WorkerDoc>("workers", {
   },
   salt: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  role: {
+    type: DataTypes.ENUM(RoleEnum.ADMIN, RoleEnum.WORKER),
     allowNull: false,
   },
 });

@@ -4,6 +4,7 @@ export interface WorkerInput {
   firstName: string;
   lastName: string;
   salt: string;
+  role: string;
 }
 
 export interface WorkerLogin {

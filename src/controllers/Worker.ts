@@ -10,6 +10,8 @@ import {
   validatePassword,
 } from "../utility/Password";
 
+import { RoleEnum } from "../models";
+
 export const createWorker = async (
   req: Request,
   res: Response,
@@ -18,31 +20,39 @@ export const createWorker = async (
   try {
     const errors = validationResult(req.body);
     if (!errors.isEmpty()) {
-      const error = new HttpsError("invalid registeration inputs", 422);
+      const error = new HttpsError("invalid registeration inputs", 422); //422 is invalid input error
       throw error;
     }
-    const { email, password, firstName, lastName } = <WorkerInput>req.body;
+    const { email, password, firstName, lastName, role } = <WorkerInput>(
+      req.body
+    );
     const existingWorker = await Workers.findOne({
       where: { email: email },
     });
 
     if (existingWorker) {
-      const error = new HttpsError("Worker already exist", 409);
+      const error = new HttpsError("Worker already exist", 409); //409 is already exists error
       throw error;
     }
 
-    const salt = await generateSalt();
-    const hashedPassword = await hashPassword(password, salt);
+    if (role === RoleEnum.WORKER || role === RoleEnum.ADMIN) {
+      // const error = new HttpsError("only workers are allowed to register", 403); //403 is not authorized error
+      // throw error;
+      const salt = await generateSalt();
+      const hashedPassword = await hashPassword(password, salt);
 
-    const savedWorker = await Workers.create({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      salt,
-    });
+      const savedWorker = await Workers.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        salt,
+        role,
+      });
 
-    res.status(201).json("User Created Succesfully");
+      res.status(201).json("User Created Succesfully");
+    } else if (role === RoleEnum.ADMIN) {
+    }
   } catch (err: any) {
     if (err) {
       err.statusCode = 500;
@@ -83,6 +93,7 @@ export const workerLogin = async (
         email: existingUser.email,
         password: existingUser.password,
         salt: existingUser.salt,
+        role: existingUser.role,
       };
       if (comparePassword) {
         const token = await generateToken(payload);

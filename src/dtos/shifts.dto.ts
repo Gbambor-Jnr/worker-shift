@@ -1,7 +1,7 @@
-import { Shift } from "../models";
+import { ShiftEnum } from "../models";
 
 export interface ShiftInput {
-  selectedShift: Shift;
+  selectedShift: ShiftEnum;
   shiftStartTime: number;
   shiftEndTime: number;
   shiftDay: Date;

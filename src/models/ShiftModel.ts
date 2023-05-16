@@ -1,7 +1,7 @@
 import { sequelize } from "../services/connection";
 import { Op, Sequelize, Model, DataTypes } from "sequelize";
 
-export enum Shift {
+export enum ShiftEnum {
   first = "first",
   second = "second",
   third = "third",
@@ -9,7 +9,7 @@ export enum Shift {
 
 interface ShiftDoc extends Model {
   id: number;
-  selectedShift: Shift;
+  selectedShift: ShiftEnum;
   shiftStartTime: number;
   shiftEndTime: number;
   shiftDay: Date;
@@ -34,7 +34,7 @@ export const Shifts = sequelize.define<ShiftDoc>(
       primaryKey: true,
     },
     selectedShift: {
-      type: DataTypes.ENUM(Shift.first, Shift.second, Shift.third),
+      type: DataTypes.ENUM(ShiftEnum.first, ShiftEnum.second, ShiftEnum.third),
       allowNull: false,
     },
     shiftStartTime: {

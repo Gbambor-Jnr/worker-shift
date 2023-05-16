@@ -3,4 +3,5 @@ export interface Payload {
   email: string;
   password: string;
   salt: string;
+  role: string;
 }

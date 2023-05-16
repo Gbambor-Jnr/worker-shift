@@ -14,8 +14,8 @@ const startServer = async () => {
   const app = express();
   await expressApp(app);
 
-  Shifts.belongsToMany(Workers, { through: WorkerShift });
-  Workers.belongsToMany(Shifts, { through: WorkerShift });
+  //   Shifts.belongsToMany(Workers, { through: WorkerShift });
+  //   Workers.belongsToMany(Shifts, { through: WorkerShift });
 
   //   Workers.sync({ force: true });
   //  Shifts.sync({ force: true });
