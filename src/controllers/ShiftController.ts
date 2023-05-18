@@ -1,8 +1,27 @@
 import express, { Request, Response, NextFunction } from "express";
 import { ShiftEnum, Shifts } from "../models/ShiftModel";
-import { ShiftInput } from "../dtos/shifts.dto";
+import { ShiftDays, ShiftInput } from "../dtos/shifts.dto";
 import { Workers } from "../models";
 import { WorkerShift } from "../models/WorkerShift";
+import { HttpsError } from "../utility";
+
+const oneDayMilliseconds = 86400000; //60x60x24x1000
+
+// const trueFnc = (days: ShiftDays, enteredDate: string) => {
+//   const shiftsLessThan24Hours = days.shiftDays
+//     .map((val) => {
+//       return Math.abs(
+//         new Date(val.shiftDay).getTime() - new Date(enteredDate).getTime()
+//       );
+//     })
+//     .filter((val) => val < oneDayMilliseconds);
+
+//   if (shiftsLessThan24Hours.length > 0) {
+//     return false;
+//   }
+
+//   return true;
+// };
 
 export const createShift = async (
   req: any,
@@ -10,42 +29,6 @@ export const createShift = async (
   next: NextFunction
 ) => {
   try {
-    //     const { selectedShift, shiftStartTime, shiftEndTime, shiftDay } = req.body;
-    //     console.log(typeof shiftDay);
-    //     const existingUser = req.user;
-    //     const existingWorker = await Workers.findOne({
-    //       where: { email: existingUser.email },
-    //     });
-    //     if (existingWorker) {
-    //       const existingWorkerSHift = await WorkerShift.findAll({
-    //         where: { workerId: existingWorker.id },
-    //       });
-    //       const existingShift = await Shifts.findOne({ where: { id: shiftId } });
-    //       const enteredShiftDayMillisecond: number = new Date(shiftDay).getTime();
-    //       let savedShiftDayMillisecond;
-    //       if (existingShift) {
-    //         const shiftDay_ = existingShift.shiftDay;
-    //         savedShiftDayMillisecond = new Date(shiftDay_).getTime();
-    //       }
-    //       if (savedShiftDayMillisecond) {
-    //         const diference = Math.abs(
-    //           savedShiftDayMillisecond - enteredShiftDayMillisecond
-    //         );
-    //         if (diference > 86400000) {
-    //           const createdShift = await Shifts.create({
-    //             selectedShift,
-    //             shiftStartTime,
-    //             shiftEndTime,
-    //             shiftDay,
-    //           });
-    //           const createdWorkerSHift = await WorkerShift.create({
-    //             workerId: existingWorker.id,
-    //             shiftId: createdShift.id,
-    //           });
-    //           res.status(201).json("Shift created Succesfully");
-    //         }
-    //       }
-    //     }
     const { selectedShift, shiftStartTime, shiftEndTime, shiftDay } = <
       ShiftInput
     >req.body;
@@ -54,7 +37,39 @@ export const createShift = async (
     const existingWorker = await Workers.findOne({
       where: { email: user.email },
     });
+    console.log(existingWorker);
+    let shiftDayMilliseconds = new Date(shiftDay).getTime();
+
     if (existingWorker) {
+      //CHECK IF SHIFT EXISTS
+      const allShift = await Shifts.findAll({ attributes: ["shiftDay"] });
+
+      const existingDayMillisecond = new Date(shiftDay).getTime();
+
+      const existingShift = allShift.filter(
+        (days) => new Date(days.shiftDay).getTime() === existingDayMillisecond
+      );
+      if (existingShift) {
+        const error = new HttpsError("A shift exists already on this day", 409);
+      }
+
+      //IF NO EXISTING SHIFT NOW YOU HAVE TO CHECK IF THE ENTERED SHIFT IS ATLEAST 24 hours greater than the existing shifts in the datatbase
+
+      const ShiftLessThanOneDay = allShift
+        .map((day) =>
+          Math.abs(
+            new Date(shiftDay).getTime() - new Date(day.shiftDay).getTime()
+          )
+        )
+        .filter((val) => val < oneDayMilliseconds);
+
+      if (ShiftLessThanOneDay.length > 0) {
+        const error = new HttpsError(
+          "This shift is less than one day from the previous day",
+          409
+        );
+        throw error;
+      }
       const createdShift = await Shifts.create({
         selectedShift,
         shiftStartTime,
@@ -62,6 +77,7 @@ export const createShift = async (
         shiftDay,
         workerId: existingWorker.id,
       });
+      res.status(201).json("shift created succesfully");
     }
   } catch (err) {
     console.log(err);

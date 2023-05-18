@@ -20,7 +20,7 @@ const startServer = async () => {
   //   Workers.sync({ force: true });
   //  Shifts.sync({ force: true });
 
-  //   sequelize.sync({ force: true });
+  // sequelize.sync({ force: true });
 
   app.listen(PORT, () => {
     console.log("connected succesfully");

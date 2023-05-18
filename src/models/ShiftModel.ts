@@ -12,7 +12,7 @@ interface ShiftDoc extends Model {
   selectedShift: ShiftEnum;
   shiftStartTime: number;
   shiftEndTime: number;
-  shiftDay: Date;
+  shiftDay: string;
   workerId: string;
 }
 
@@ -46,7 +46,7 @@ export const Shifts = sequelize.define<ShiftDoc>(
       allowNull: false,
     },
     shiftDay: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     workerId: {

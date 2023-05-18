@@ -6,3 +6,11 @@ export interface ShiftInput {
   shiftEndTime: number;
   shiftDay: Date;
 }
+
+export interface ShiftDay {
+  shiftDay: string;
+}
+
+export interface ShiftDays {
+  shiftDays: [ShiftDay];
+}

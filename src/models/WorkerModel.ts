@@ -19,8 +19,8 @@ export enum RoleEnum {
 
 export const Workers = sequelize.define<WorkerDoc>("workers", {
   id: {
-    type: DataTypes.UUID,
-    defaultValue: UUIDV4,
+    type: DataTypes.INTEGER,
+    // defaultValue: UUIDV4,
     primaryKey: true,
     autoIncrement: true,
   },
