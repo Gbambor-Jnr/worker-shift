@@ -11,6 +11,7 @@ import {
 } from "../utility/Password";
 
 import { RoleEnum } from "../models";
+import { workerInputSchema } from "../utility";
 
 export const createWorker = async (
   req: Request,
@@ -18,14 +19,22 @@ export const createWorker = async (
   next: NextFunction
 ) => {
   try {
-    const errors = validationResult(req.body);
-    if (!errors.isEmpty()) {
-      const error = new HttpsError("invalid registeration inputs", 422); //422 is invalid input error
-      throw error;
-    }
-    const { email, password, firstName, lastName, role } = <WorkerInput>(
-      req.body
-    );
+    const inputValue = await workerInputSchema
+      .validateAsync(
+        {
+          email: req.body.email,
+          password: req.body.password,
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          role: req.body.role,
+        },
+        {
+          abortEarly: false,
+        }
+      )
+      .catch((err) => res.status(400).json(err.details[0].message));
+
+    const { email, password, firstName, lastName, role } = inputValue;
     const existingWorker = await Workers.findOne({
       where: { email: email },
     });
@@ -55,8 +64,9 @@ export const createWorker = async (
     }
   } catch (err: any) {
     if (err) {
-      err.statusCode = 500;
-      throw new HttpsError("Server error", 500);
+      // err.statusCode = 500;
+      // throw new HttpsError("Server error", 500);
+      return res.status(400).json(err.message);
     }
   }
 };

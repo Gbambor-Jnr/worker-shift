@@ -83,3 +83,61 @@ export const createShift = async (
     console.log(err);
   }
 };
+
+export const getAllShifts = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+  const existingWorker = await WorkerShift.findOne({
+    where: { email: user.email },
+  });
+
+  if (!existingWorker) {
+    ///CHECK ERROR CODE AGAIN
+    const error = new HttpsError(
+      "You have to be logged in to view this page",
+      403
+    );
+    throw error;
+  }
+  const allShift = await Shifts.findAll({ where: { folderId: user.id } });
+  res.status(200).json({ shifts: allShift });
+};
+
+const getShiftById = async (req: any, res: Response, next: NextFunction) => {
+  const user = req.user;
+  const shiftId = req.params.id;
+  const existingWorker = await WorkerShift.findOne({
+    where: { email: user.email },
+  });
+  if (existingWorker) {
+    const error = new HttpsError(
+      "You have to be logged in to view this page",
+      403
+    );
+    throw error;
+  }
+
+  const existingShift = await Shifts.findOne({ where: { id: shiftId } });
+  res.status(200).json({ shift: existingShift });
+};
+
+const cancelShift = async (req: any, res: Response, next: NextFunction) => {
+  const user = req.user;
+  const shiftId = req.params.id;
+  const existingWorker = await WorkerShift.findOne({
+    where: { email: user.email },
+  });
+  if (!existingWorker) {
+    const error = new HttpsError(
+      "You have to be logged in to view this page",
+      403
+    );
+    throw error;
+  }
+
+  const deletedShift = await Shifts.destroy({ where: { id: shiftId } });
+  res.status(200).json("shift canceled succesfully");
+};

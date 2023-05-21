@@ -50,7 +50,7 @@ export const Shifts = sequelize.define<ShiftDoc>(
       allowNull: false,
     },
     workerId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },
