@@ -1,2 +1,4 @@
 node_modules
 .env
+
+# always add short notes for better understanding

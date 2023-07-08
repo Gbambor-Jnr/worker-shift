@@ -3,6 +3,7 @@
 //npm i sequelize-cli
 //npx sequelize-cli init
 //npx sequelize-cli model:generate --name Project --attributes name:string
+// always add short notes for better understanding
 
 import { Model } from "sequelize";
 
